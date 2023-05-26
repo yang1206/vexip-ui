@@ -29,6 +29,22 @@ jobs:
       - name: Install deps
         run: pnpm install
 
+      - name: Cache eslint
+        uses: actions/cache@v3
+        with:
+          path: .eslintcache
+          key: ${{ runner.os }}-eslint-${{ hashFiles('**/*.{js,ts,tsx,vue}') }}
+          restore-keys: |
+            ${{ runner.os }}-eslint-
+
+      - name: Cache stylelint
+        uses: actions/cache@v3
+        with:
+          path: .stylelintcache
+          key: ${{ runner.os }}-stylelintcache-${{ hashFiles('**/*.{vue,scss}') }}
+          restore-keys: |
+            ${{ runner.os }}-stylelintcache-
+
       - name: Lint
         run: pnpm run lint
 
