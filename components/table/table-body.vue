@@ -1,23 +1,26 @@
 <template>
   <div :class="nh.be('body')" role="rowgroup" :style="style">
-    <div v-if="renderData.length" :class="nh.be('row-list')" :style="listStyle">
+    <template v-if="data.length">
       <TableRow
-        v-for="row in renderData"
+        v-for="row in data"
         :key="row.index"
         :row="row"
-        :index="row.index"
-        :is-fixed="!!fixed"
+        :index="row.listIndex"
+        :fixed="fixed"
+        :aria-rowindex="row.index"
       >
         <TableCell
-          v-for="(column, columnIndex) in currentColumns"
+          v-for="(column, columnIndex) in columns"
           :key="columnIndex"
           :row="row"
-          :row-index="row.index"
+          :row-index="row.listIndex"
           :column="column"
           :column-index="columnIndex"
+          :fixed="fixed"
+          :aria-colindex="columnIndex"
         ></TableCell>
       </TableRow>
-    </div>
+    </template>
     <div v-else :class="nh.be('empty')" :style="emptyStyle">
       <slot name="empty" :is-fixed="!!fixed">
         <template v-if="!fixed">
@@ -46,50 +49,34 @@ export default defineComponent({
   },
   props: {
     fixed: {
-      type: String as PropType<'left' | 'right'>,
-      default: null,
-      validator: (value: string) => {
-        return value === 'left' || value === 'right'
-      }
+      type: String as PropType<'left' | 'right' | undefined>,
+      default: null
     }
   },
   setup(props) {
     const { state, getters } = inject(TABLE_STORE)!
 
-    const currentColumns = computed(() => {
-      if (props.fixed === 'left') {
-        return state.leftFixedColumns
-      }
-
-      if (props.fixed === 'right') {
-        return state.rightFixedColumns
-      }
-
-      return state.columns
+    const columns = computed(() => {
+      return props.fixed === 'left'
+        ? state.leftFixedColumns
+        : props.fixed === 'right'
+          ? state.rightFixedColumns
+          : state.columns
     })
-    const renderData = computed(() => (state.virtual ? state.virtualData : getters.processedData))
+    const data = computed(() => (state.virtual ? state.virtualData : getters.processedData))
     const style = computed(() => {
-      const { widths, totalHeight } = state
-      const columns = currentColumns.value
-
-      let width = 0
-
-      for (let i = 0, len = columns.length; i < len; ++i) {
-        const column = columns[i]
-        const key = column.key
-        const columnWidth = widths.get(key) || 0
-
-        width += columnWidth
-      }
+      const width =
+        props.fixed === 'left'
+          ? getters.leftFixedWidths.at(-1)
+          : props.fixed === 'right'
+            ? getters.rightFixedWidths.at(-1)
+            : getters.totalWidths.at(-1)
+      const padLeft = props.fixed !== 'right' ? state.sidePadding[0] || 0 : 0
+      const padRight = props.fixed !== 'left' ? state.sidePadding[1] || 0 : 0
 
       return {
-        minWidth: `${width}px`,
-        minHeight: `${totalHeight}px`
-      }
-    })
-    const listStyle = computed(() => {
-      return {
-        transform: state.virtual ? `translate3d(0, ${state.padTop}px, 0)` : undefined
+        minWidth: width && `${width + padLeft + padRight}px`,
+        minHeight: `${state.totalHeight}px`
       }
     })
     const emptyStyle = computed(() => {
@@ -104,11 +91,10 @@ export default defineComponent({
       nh: useNameHelper('table'),
       locale: toRef(state, 'locale'),
 
-      currentColumns,
+      columns,
+      data,
       style,
-      listStyle,
-      emptyStyle,
-      renderData
+      emptyStyle
     }
   }
 })

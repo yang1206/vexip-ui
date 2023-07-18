@@ -13,14 +13,14 @@
       id-key="firstName"
       :attrs="{ 'data-label': 'First Name' }"
     ></TableColumn>
-    <TableColumn name="Last Name" id-key="lastName" class-name="demo-column-class"></TableColumn>
-    <TableColumn name="Job" id-key="job" style="font-weight: bold;"></TableColumn>
+    <TableColumn name="Last Name" id-key="lastName" class="demo-column-class"></TableColumn>
+    <TableColumn name="Job" id-key="job" style="font-weight: bold"></TableColumn>
     <TableColumn name="Age" id-key="age"></TableColumn>
   </Table>
 </template>
 
 <script setup lang="ts">
-import type { TableColumnOptions } from 'vexip-ui'
+import type { TableCellPropFn, TableHeadPropFn } from 'vexip-ui'
 
 type ItemType<D> = D extends (infer I)[] ? I : Record<string, any>
 
@@ -69,30 +69,18 @@ const data = [
 
 const rowClass = 'demo-row-class'
 
-function headClass(column: TableColumnOptions, index: number) {
-  return `head-${index}`
-}
+const headClass: TableHeadPropFn = ({ index }) => `head-${index}`
 
-function headStyle(column: TableColumnOptions, index: number) {
-  return {
-    color: `var(--vxp-color-error-opacity-${index + 1})`
-  }
-}
+const headStyle: TableHeadPropFn = ({ index }) => ({
+  color: `var(--vxp-color-error-opacity-${index + 1})`
+})
 
-function hadeAttrs(column: TableColumnOptions, index: number) {
-  return {
-    'data-index': index
-  }
-}
+const hadeAttrs: TableHeadPropFn = ({ index }) => ({
+  'data-index': index
+})
 
-function cellClass(
-  row: ItemType<typeof data>,
-  column: TableColumnOptions,
-  rowIndex: number,
-  columnIndex: number
-) {
-  return `cell-${rowIndex}-${columnIndex}`
-}
+const cellClass: TableCellPropFn<ItemType<typeof data>> = ({ rowIndex, columnIndex }) =>
+  `cell-${rowIndex}-${columnIndex}`
 </script>
 
 <style scoped>

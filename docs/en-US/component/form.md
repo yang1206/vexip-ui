@@ -116,7 +116,7 @@ This example demonstrates how to create and delete form items.
 
 Since we promised that there is at most one control component under a FormItem, you may want the FormItem not to render additional styles when combining multiple controls.
 
-After adding the `prue` prop, the FormItem will directly render the contents of the default slot.
+After adding the `pure` prop, the FormItem will directly render the contents of the default slot.
 
 :::
 
@@ -132,7 +132,7 @@ Set the value of the `action` prop to use native form submission.
 
 ### Form Layout
 
-Form has built in most of the features of the Row component (one-dimensional grid), so you can use it just like the row component.
+The Form and FormItem components have most of the features of the Row and Column components (one-dimensional grid) built in, respectively, so you can use them as if they were row layouts.
 
 :::
 
@@ -154,7 +154,7 @@ type Types =
   | 'color'
   | 'email'
 type Range = [number, number]
-type ValidatorReslut = boolean | string | Error | Promise<boolean | string | Error>
+type ValidatorResult = boolean | string | Error | Promise<boolean | string | Error>
 
 interface Rule<T = any> {
   required?: boolean,
@@ -164,7 +164,7 @@ interface Rule<T = any> {
   strict?: boolean,
   enums?: T[],
   message?: string,
-  validator?(value: T, model: Record<string, any>): ValidatorReslut
+  validator?(value: T, model: Record<string, any>): ValidatorResult
 }
 ```
 
@@ -177,7 +177,7 @@ interface Rule<T = any> {
 | model         | `Record<string, any>`                  | The form data source                                                                                                                          | `{}`        | -       |
 | rules         | `Record<string, any>`                  | The form validation rules                                                                                                                     | `{}`        | -       |
 | label-width   | `number \| 'auto'`                     | The width of the form label                                                                                                                   | `'auto'`    | -       |
-| labell-align  | `'right' \| 'top' \| 'left'`           | The alignment of form labels                                                                                                                  | `'right'`   | -       |
+| label-align   | `'right' \| 'top' \| 'left'`           | The alignment of form labels                                                                                                                  | `'right'`   | -       |
 | all-required  | `boolean`                              | Set whether all form content is required                                                                                                      | `false`     | -       |
 | label-suffix  | `string`                               | The suffix of the form label, such as `:`                                                                                                     | `''`        | -       |
 | hide-asterisk | `boolean`                              | Set whether to hide required asterisks                                                                                                        | `false`     | -       |
@@ -210,6 +210,8 @@ interface Rule<T = any> {
 
 ### FormItem Props
 
+> Supported props of Column component include: span, offset, push, pull, order, flex, xs, sm, md, lg, xl, xxl. Only the props specific to the FormItem component are listed below.
+
 | Name             | Type                   | Description                                                                                                                                       | Default      | Since   |
 | ---------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------- |
 | label            | `string`               | label of the form field                                                                                                                           | `''`         | -       |
@@ -228,8 +230,6 @@ interface Rule<T = any> {
 | help             | `string`               | Set the help information for field                                                                                                                | `''`         | `2.0.0` |
 | locale           | `LocaleConfig['form']` | Set the locale config                                                                                                                             | `null`       | `2.1.0` |
 
-> Supported props of Column component include: span, offset, push, pull, order, flex, xs, sm, md, lg, xl, xxl
-
 ### FormItem Slots
 
 | Name    | Description                     | Parameters      | Since   |
@@ -241,7 +241,7 @@ interface Rule<T = any> {
 
 ### FormSubmit Props
 
-> The FormSubmit component is a repackage of the Button component and supports most of the properties of the Button component. Only the properties specific to the Submit component are listed below.
+> The FormSubmit component is a repackage of the Button component and supports most of the props of the Button component. Only the props specific to the FormSubmit component are listed below.
 
 | Name             | Type                   | Description                                                                                                                     | Default         | Since   |
 | ---------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------- |
@@ -259,7 +259,7 @@ interface Rule<T = any> {
 
 ### FormReset Props
 
-> The FormReset component is a repackage of the Button component and supports most of the properties of the Button component. Only the properties specific to the Reset component are listed below.
+> The FormReset component is a repackage of the Button component and supports most of the props of the Button component. Only the props specific to the FormReset component are listed below.
 
 | Name            | Type                   | Description                                                                                                                     | Default        | Since   |
 | --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------- |

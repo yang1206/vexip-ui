@@ -88,7 +88,7 @@ import { computed, defineComponent, nextTick, provide, ref, watch } from 'vue'
 
 import WheelItem from './wheel-item.vue'
 import { createStateProp, emitEvent, useIcons, useNameHelper, useProps } from '@vexip-ui/config'
-import { useDisplay, useModifier } from '@vexip-ui/hooks'
+import { useDisplay, useModifier, useRtl } from '@vexip-ui/hooks'
 import { USE_TOUCH, boundRange, debounce, debounceMinor, toFalse } from '@vexip-ui/utils'
 import { wheelProps } from './props'
 import { WHEEL_STATE } from './symbol'
@@ -147,6 +147,8 @@ export default defineComponent({
     const horizontalPadding = ref(0)
     const verticalPadding = ref(0)
     const isInit = ref(false)
+
+    const { isRtl } = useRtl()
 
     const wrapper = useDisplay(displayInit)
     const scroll = ref<InstanceType<typeof Scroll>>()
@@ -262,10 +264,18 @@ export default defineComponent({
       )
     })
     const prevIcon = computed(() =>
-      props.horizontal ? icons.value.angleLeft : icons.value.angleUp
+      props.horizontal
+        ? isRtl.value
+          ? icons.value.angleRight
+          : icons.value.angleLeft
+        : icons.value.angleUp
     )
     const nextIcon = computed(() =>
-      props.horizontal ? icons.value.angleRight : icons.value.angleDown
+      props.horizontal
+        ? isRtl.value
+          ? icons.value.angleLeft
+          : icons.value.angleRight
+        : icons.value.angleDown
     )
 
     provide(WHEEL_STATE, { increaseItem, decreaseItem })
@@ -276,7 +286,7 @@ export default defineComponent({
         0
       )
 
-      currentActive.value = findEnabledActive(active)
+      setActive(findEnabledActive(active))
     })
 
     const computeSize = debounceMinor(() => {
@@ -339,21 +349,25 @@ export default defineComponent({
       { immediate: true }
     )
     watch(() => props.horizontal, computeSize)
-    watch(currentActive, () => {
-      refreshScroll()
-
-      const item = itemList.value[currentActive.value]
-      const value = item?.value
-
-      setFieldValue(value)
-      emitEvent(props.onChange, value, item?.meta)
-      emit('update:value', value)
-      validateField()
-    })
     watch(() => props.candidate, computeSize)
 
     function isItemDisabled(item: ItemState) {
       return item.disabled || props.disabledItem(item.value, item.meta)
+    }
+
+    function setActive(active: number) {
+      if (currentActive.value === active) return
+
+      currentActive.value = active
+
+      const item = itemList.value[active]
+      const value = item?.value
+
+      refreshScroll()
+      emit('update:value', value)
+      setFieldValue(value)
+      emitEvent(props.onChange, value, item?.meta)
+      validateField()
     }
 
     function queryEnabledActive(active: number, step: number) {
@@ -422,7 +436,7 @@ export default defineComponent({
       const active = Math.round(aboutActive)
 
       if (active !== currentActive.value) {
-        currentActive.value = findEnabledActive(active, active > aboutActive ? 1 : -1)
+        setActive(findEnabledActive(active, active > aboutActive ? 1 : -1))
       } else {
         refreshScroll()
       }
@@ -441,21 +455,25 @@ export default defineComponent({
         ? Math.round(clientX / targetWidth.value)
         : Math.round(clientY / targetHeight.value)
 
-      currentActive.value = findEnabledActive(active, sign)
+      setActive(findEnabledActive(active, sign))
     }
 
     function handlePrev() {
       if (!prevDisabled.value) {
-        currentActive.value = findEnabledActive(currentActive.value - 1, -1)
+        setActive(findEnabledActive(currentActive.value - 1, -1))
+
         const item = itemList.value[currentActive.value]
+
         emitEvent(props.onPrev, item?.value, item?.meta)
       }
     }
 
     function handleNext() {
       if (!nextDisabled.value) {
-        currentActive.value = findEnabledActive(currentActive.value + 1, 1)
+        setActive(findEnabledActive(currentActive.value + 1, 1))
+
         const item = itemList.value[currentActive.value]
+
         emitEvent(props.onNext, item?.value, item?.meta)
       }
     }

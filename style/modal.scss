@@ -55,6 +55,7 @@ $modal: map.merge(
     border: 0;
     border-radius: get-css-var('modal-radius');
     box-shadow: get-css-var('modal-shadow');
+    transform: translateZ(0);
 
     &--dragging,
     &--resizing {
@@ -115,7 +116,7 @@ $modal: map.merge(
     align-items: center;
     height: 24px;
     padding: 0;
-    margin-left: 6px;
+    margin-inline-start: 6px;
     color: get-css-var('modal-close-color');
     cursor: pointer;
     background-color: transparent;

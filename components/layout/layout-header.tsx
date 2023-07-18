@@ -83,7 +83,8 @@ export default defineComponent({
           [nh.bem('header', 'inherit')]: layoutState.isLayout || props.inherit,
           [nh.bem('header', 'away')]: !layoutState.affixMatched,
           [nh.bem('header', 'affixed')]: layoutState.affixed
-        }
+        },
+        layoutState.classes.header
       ]
     })
     const userActions = computed(() => {
@@ -167,8 +168,8 @@ export default defineComponent({
       layoutState.changeInLock(() => {
         currentSignType.value = type
 
-        emitEvent(props.onNavChange, type)
         emit('update:sign-type', type)
+        emitEvent(props.onNavChange, type)
       })
     }
 
@@ -187,8 +188,8 @@ export default defineComponent({
     function handleColorChange(color: string) {
       currentColor.value = color
 
-      emitEvent(props.onColorChange, color)
       emit('update:color', color)
+      emitEvent(props.onColorChange, color)
     }
 
     function handleSignClick(event: MouseEvent) {
@@ -198,8 +199,8 @@ export default defineComponent({
     function toggleUserDropped(dropped = !currentUserDropped.value) {
       currentUserDropped.value = dropped
 
-      emitEvent(props.onDroppedChange, dropped)
       emit('update:user-dropped', dropped)
+      emitEvent(props.onDroppedChange, dropped)
     }
 
     function handleMenuSelect(label: string, meta: Record<string, any>) {
@@ -214,8 +215,8 @@ export default defineComponent({
     function toggleTheme(darkMode: boolean) {
       isDark.value = darkMode
 
-      emitEvent(props.onToggleTheme, darkMode)
       emit('update:dark-mode', darkMode)
+      emitEvent(props.onToggleTheme, darkMode)
 
       if (!isClient) return
 
@@ -263,10 +264,10 @@ export default defineComponent({
               icon: () =>
                 isDark.value
                   ? (
-                  <Icon {...icons.value.dark}></Icon>
+                    <Icon {...icons.value.dark}></Icon>
                     )
                   : (
-                  <Icon {...icons.value.light}></Icon>
+                    <Icon {...icons.value.light}></Icon>
                     )
             }}
           </Switch>
@@ -283,6 +284,7 @@ export default defineComponent({
         <div class={nh.be('config-unit')}>
           {props.colors.map(color => (
             <div
+              key={color}
               class={nh.be('major-color')}
               style={{
                 backgroundColor: color
@@ -296,149 +298,161 @@ export default defineComponent({
       )
     }
 
+    function renderUserAvatar() {
+      if (slots.avatar) {
+        return renderSlot(slots, 'avatar', slotParams)
+      }
+
+      if (typeof props.user?.avatar === 'string') {
+        return (
+          <Avatar
+            src={props.user.avatar}
+            circle={props.avatarCircle}
+            onClick={() => toggleUserDropped()}
+          >
+            {{
+              icon: () => <Icon {...icons.value.user}></Icon>
+            }}
+          </Avatar>
+        )
+      }
+
+      return (
+        <Avatar circle={props.avatarCircle} onClick={() => toggleUserDropped()}>
+          {{
+            icon: () => (
+              <Icon {...icons.value.user} icon={props.user.avatar || icons.value.user.icon}></Icon>
+            )
+          }}
+        </Avatar>
+      )
+    }
+
+    function renderUserDrop() {
+      return (
+        <DropdownList>
+          {props.user?.name && (
+            <li class={nh.be('user-profile')}>
+              <span class={nh.be('user-name')}>{props.user.name}</span>
+              {props.user.email && <span class={nh.be('user-email')}>{props.user.email}</span>}
+            </li>
+          )}
+          {props.config?.length ? renderConfigs() : null}
+          {userActions.value.map(action => (
+            <DropdownItem
+              key={action.label}
+              class={nh.be('user-action')}
+              label={action.label}
+              disabled={action.disabled}
+              divided={action.divided}
+              onSelect={() => handleUserActionSelect(action.label, action.meta || {})}
+            >
+              {action.icon && (
+                <Icon
+                  {...action.iconProps}
+                  icon={action.icon}
+                  style={{ marginRight: '6px' }}
+                ></Icon>
+              )}
+              {action.name || action.label}
+            </DropdownItem>
+          ))}
+        </DropdownList>
+      )
+    }
+
+    function renderConfigs() {
+      return (
+        <li class={nh.be('config')}>
+          {props.config.includes('nav') &&
+            layoutState.navConfig && [
+              <div key={1} class={nh.be('config-label')}>
+                {locale.value.signType}
+              </div>,
+              renderLayoutConfig()
+          ]}
+          {props.config.includes('theme') && [
+            <div key={2} class={nh.be('config-label')}>
+              {locale.value.themeMode}
+            </div>,
+            renderThemeConfig()
+          ]}
+          {props.config.includes('color') && [
+            <div key={3} class={nh.be('config-label')}>
+              {locale.value.majorColor}
+            </div>,
+            renderColorConfig()
+          ]}
+        </li>
+      )
+    }
+
     return () => {
       const CustomTag = (props.tag || 'header') as any
 
       return (
         <CustomTag class={className.value}>
           {hasLeft.value && (
-            <div class={nh.be('header-left')}>
+            <div class={[nh.be('header-left'), layoutState.classes.headerLeft]}>
               {slots.left
                 ? (
                     renderSlot(slots, 'left', slotParams)
                   )
                 : props.signType === 'header'
                   ? (
-                <div class={nh.be('sign')} onClick={handleSignClick}>
-                  {props.logo && (
-                    <div class={nh.be('logo')}>
-                      <img src={props.logo} alt={'Logo'} />
+                    <div class={nh.be('sign')} onClick={handleSignClick}>
+                      {props.logo && (
+                        <div class={nh.be('logo')}>
+                          <img src={props.logo} alt={'Logo'} />
+                        </div>
+                      )}
+                      {props.signName && <span class={nh.be('sign-name')}>{props.signName}</span>}
                     </div>
-                  )}
-                  {props.signName && <span class={nh.be('sign-name')}>{props.signName}</span>}
-                </div>
                     )
                   : null}
             </div>
           )}
-          <div class={nh.be('header-main')}>
+          <div class={[nh.be('header-main'), layoutState.classes.headerMain]}>
             {slots.default
               ? (
                   renderSlot(slots, 'default', slotParams)
                 )
               : hasMenu.value
                 ? (
-              <Menu
-                ref={menu}
-                {...(props.menuProps || {})}
-                horizontal
-                transfer
-                options={props.menus}
-                onSelect={handleMenuSelect}
-              ></Menu>
+                  <Menu
+                    ref={menu}
+                    {...(props.menuProps || {})}
+                    horizontal
+                    transfer
+                    options={props.menus}
+                    onSelect={handleMenuSelect}
+                  ></Menu>
                   )
                 : null}
           </div>
           {slots.right && (
-            <div class={nh.be('header-right')}>{renderSlot(slots, 'right', slotParams)}</div>
+            <div class={[nh.be('header-right'), layoutState.classes.headerRight]}>
+              {renderSlot(slots, 'right', slotParams)}
+            </div>
           )}
           {slots.user
             ? (
                 renderSlot(slots, 'user', slotParams)
               )
             : (
-            <Dropdown
-              class={nh.be('user')}
-              transfer
-              placement={'bottom-end'}
-              visible={currentUserDropped.value}
-              trigger={'custom'}
-              onClickOutside={() => toggleUserDropped(false)}
-            >
-              {{
-                default: () => {
-                  if (slots.avatar) {
-                    return renderSlot(slots, 'avatar', slotParams)
-                  }
-
-                  if (typeof props.user?.avatar === 'string') {
-                    return (
-                      <Avatar
-                        src={props.user.avatar}
-                        circle={props.avatarCircle}
-                        onClick={() => toggleUserDropped()}
-                      >
-                        {{
-                          icon: () => <Icon {...icons.value.user}></Icon>
-                        }}
-                      </Avatar>
-                    )
-                  }
-
-                  return (
-                    <Avatar circle={props.avatarCircle} onClick={() => toggleUserDropped()}>
-                      {{
-                        icon: () => (
-                          <Icon
-                            {...icons.value.user}
-                            icon={props.user.avatar || icons.value.user.icon}
-                          ></Icon>
-                        )
-                      }}
-                    </Avatar>
-                  )
-                },
-                drop: () => (
-                  <DropdownList>
-                    {props.user?.name && (
-                      <li class={nh.be('user-profile')}>
-                        <span class={nh.be('user-name')}>{props.user.name}</span>
-                        {props.user.email && (
-                          <span class={nh.be('user-email')}>{props.user.email}</span>
-                        )}
-                      </li>
-                    )}
-                    {props.config?.length
-                      ? (
-                      <li class={nh.be('config')}>
-                        {props.config.includes('nav') &&
-                          layoutState.navConfig && [
-                            <div class={nh.be('config-label')}>{locale.value.signType}</div>,
-                            renderLayoutConfig()
-                        ]}
-                        {props.config.includes('theme') && [
-                          <div class={nh.be('config-label')}>{locale.value.themeMode}</div>,
-                          renderThemeConfig()
-                        ]}
-                        {props.config.includes('color') && [
-                          <div class={nh.be('config-label')}>{locale.value.majorColor}</div>,
-                          renderColorConfig()
-                        ]}
-                      </li>
-                        )
-                      : null}
-                    {userActions.value.map(action => (
-                      <DropdownItem
-                        class={nh.be('user-action')}
-                        label={action.label}
-                        disabled={action.disabled}
-                        divided={action.divided}
-                        onSelect={() => handleUserActionSelect(action.label, action.meta || {})}
-                      >
-                        {action.icon && (
-                          <Icon
-                            {...action.iconProps}
-                            icon={action.icon}
-                            style={{ marginRight: '6px' }}
-                          ></Icon>
-                        )}
-                        {action.name || action.label}
-                      </DropdownItem>
-                    ))}
-                  </DropdownList>
-                )
-              }}
-            </Dropdown>
+              <Dropdown
+                class={[nh.be('user'), layoutState.classes.headerUser]}
+                transfer
+                placement={'bottom-end'}
+                visible={currentUserDropped.value}
+                trigger={'custom'}
+                onClickOutside={() => toggleUserDropped(false)}
+              >
+                {{
+                  default: renderUserAvatar,
+                  drop: renderUserDrop
+                }}
+              </Dropdown>
               )}
         </CustomTag>
       )

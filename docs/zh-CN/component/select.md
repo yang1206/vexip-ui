@@ -166,7 +166,7 @@ export interface SelectKeyConfig {
   label?: string,
   disabled?: string,
   divided?: string,
-  noTitle?: string,
+  title?: string,
   group?: string,
   children?: string
 }
@@ -179,7 +179,7 @@ interface SelectOptionState {
   label: string,
   disabled: boolean,
   divided: boolean,
-  noTitle: boolean,
+  title: string,
   hidden: boolean,
   hitting: boolean,
   group: boolean,
@@ -233,6 +233,7 @@ type SelectFilter = (value: string | number, options: SelectOptionState) => bool
 | locale          | `LocaleConfig['select']`                         | 设置多语言配置                                                            | `null`         | `2.1.0`  |
 | no-preview      | `boolean`                                        | 设置是否禁用选项标签动态预览功能                                          | `false`        | `2.1.10` |
 | remote          | `boolean`                                        | 是否开启远程模式                                                          | `false`        | `2.1.12` |
+| fit-popper      | `boolean \| number`                              | 设置选项列表与选择器是否强制等宽，也可以传入一个数值指定选项列表的宽度    | `false`        | `2.1.23` |
 
 ### Select 事件
 

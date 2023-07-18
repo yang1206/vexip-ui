@@ -7,6 +7,8 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import comp from 'unplugin-vue-components/vite'
 import autoprefixer from 'autoprefixer'
 
+import type { UserConfig } from 'vite'
+
 if (!process.env.TARGET && process.env.THEME !== 'true') {
   throw new Error('Target component must be specified.')
 }
@@ -43,7 +45,7 @@ const typography = [
 ]
 
 export default defineConfig(() => {
-  return {
+  return <UserConfig>{
     publicDir: '../docs/public',
     define: {
       __TARGET__: JSON.stringify(target),
@@ -105,7 +107,7 @@ export default defineConfig(() => {
 
           modules.forEach(m => {
             if (!m.url.match(/\.(s|p)?css/)) {
-              m.importedModules = new Set()
+              m.clientImportedModules = new Set()
               m.importers = new Set()
             }
           })

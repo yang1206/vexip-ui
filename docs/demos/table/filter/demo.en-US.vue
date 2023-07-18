@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { defineFilter } from 'vexip-ui'
+import { defineColumns, defineFilter } from 'vexip-ui'
 import { Filter } from '@vexip-ui/icons'
 
 import type { Table, TableFilterProfile } from 'vexip-ui'
@@ -75,7 +75,12 @@ interface RowData {
 
 const table = ref<InstanceType<typeof Table>>()
 
-const columns = ref([
+const columns = defineColumns([
+  { type: 'selection' },
+  {
+    type: 'order',
+    name: '#'
+  },
   {
     name: 'First Name',
     key: 'firstName',
@@ -191,7 +196,7 @@ function resetAgeFilter() {
   align-items: center;
   justify-content: center;
   height: 15px;
-  margin-left: 3px;
+  margin-inline-start: 3px;
   color: var(--vxp-table-filter-color);
   cursor: pointer;
   transition: var(--vxp-transition-color);

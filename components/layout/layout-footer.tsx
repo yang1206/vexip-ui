@@ -23,11 +23,14 @@ export default defineComponent({
     const horizontalMatched = useMediaQuery(toRef(props, 'verticalLinks'))
 
     const className = computed(() => {
-      return {
-        [nh.be('footer')]: true,
-        [nh.bs('vars')]: !layoutState.isLayout,
-        [nh.bem('footer', 'inherit')]: layoutState.isLayout || props.inherit
-      }
+      return [
+        nh.be('footer'),
+        {
+          [nh.bs('vars')]: !layoutState.isLayout,
+          [nh.bem('footer', 'inherit')]: layoutState.isLayout || props.inherit
+        },
+        layoutState.classes.footer
+      ]
     })
 
     function renderLinks() {
@@ -36,10 +39,17 @@ export default defineComponent({
       }
 
       return (
-        <div class={[nh.be('links'), !horizontalMatched.value && nh.bem('links', 'vertical')]}>
+        <div
+          class={[
+            nh.be('links'),
+            !horizontalMatched.value && nh.bem('links', 'vertical'),
+            layoutState.classes.footerLinks
+          ]}
+        >
           <div class={nh.be('links-row')}>
-            {props.links.map(group => (
+            {props.links.map((group, index) => (
               <div
+                key={index}
                 class={[
                   nh.be('link-group'),
                   !horizontalMatched.value && nh.bem('link-group', 'vertical')
@@ -48,9 +58,9 @@ export default defineComponent({
                 <div class={[nh.be('link-name'), nh.bem('link-name', 'group')]}>
                   {group.to
                     ? (
-                    <Linker icon={group.icon} to={group.to} target={group.target}>
-                      {group.name}
-                    </Linker>
+                      <Linker icon={group.icon} to={group.to} target={group.target}>
+                        {group.name}
+                      </Linker>
                       )
                     : (
                         [group.icon && <Icon icon={group.icon}></Icon>, group.name]
@@ -58,15 +68,15 @@ export default defineComponent({
                   {group.subname && <div class={nh.be('link-subname')}>{`- ${group.subname}`}</div>}
                 </div>
                 {group.children?.length
-                  ? group.children.map(link => (
-                      <div class={nh.be('link')}>
-                        <Linker icon={link.icon} to={link.to} target={link.target}>
-                          {link.name}
-                        </Linker>
-                        {link.subname && (
-                          <div class={nh.be('link-subname')}>{`- ${link.subname}`}</div>
-                        )}
-                      </div>
+                  ? group.children.map((link, index) => (
+                    <div key={index} class={nh.be('link')}>
+                      <Linker icon={link.icon} to={link.to} target={link.target}>
+                        {link.name}
+                      </Linker>
+                      {link.subname && (
+                        <div class={nh.be('link-subname')}>{`- ${link.subname}`}</div>
+                      )}
+                    </div>
                   ))
                   : null}
               </div>
@@ -82,7 +92,7 @@ export default defineComponent({
       return (
         <CustomTag class={className.value}>
           {slots.links ? renderSlot(slots, 'links') : renderLinks()}
-          <div class={nh.be('copyright')}>
+          <div class={[nh.be('copyright'), layoutState.classes.copyright]}>
             {slots.copyright ? slots.copyright() : props.copyright}
           </div>
         </CustomTag>

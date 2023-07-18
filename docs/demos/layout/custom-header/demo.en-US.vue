@@ -13,7 +13,10 @@
       </div>
     </template>
     <template #header-right>
-      <Linker to="https://github.com/vexip-ui/vexip-ui" style="display: flex; margin-right: 16px">
+      <Linker
+        to="https://github.com/vexip-ui/vexip-ui"
+        style="display: flex; margin-inline-end: 16px"
+      >
         <Icon :scale="1.6">
           <GithubB></GithubB>
         </Icon>
@@ -23,7 +26,11 @@
       <span></span>
     </template>
     <template #main>
-      <div style="width: 100%; height: 1200px"></div>
+      <div style="width: 100%; padding: 0 20px">
+        <p v-for="n in 40" :key="n">
+          {{ n }}
+        </p>
+      </div>
     </template>
   </Layout>
 </template>

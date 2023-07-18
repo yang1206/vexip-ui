@@ -8,8 +8,7 @@ $message: map.merge(
   (
     color: inherit,
     bg-color: get-css-var('bg-color-base'),
-    b-color: transparent,
-    border: get-css-var('border-shape') get-css-var('message-b-color'),
+    b-color: get-css-var('border-color-light-2'),
     radius: get-css-var('radius-base'),
     s-color: get-css-var('shadow-color-base'),
     shadow: get-css-var('shadow-shape') get-css-var('message-s-color'),
@@ -50,7 +49,7 @@ $message: map.merge(
   &__icon {
     display: flex;
     align-items: center;
-    margin-right: 8px;
+    margin-inline-end: 8px;
     color: get-css-var('message-icon-color');
   }
 
@@ -58,7 +57,7 @@ $message: map.merge(
     display: flex;
     align-items: center;
     padding: 0;
-    margin-left: 14px;
+    margin-inline-start: 14px;
     color: get-css-var('message-close-color');
     cursor: pointer;
     background-color: transparent;
@@ -77,7 +76,7 @@ $message: map.merge(
     padding: get-css-var('message-v-padding') get-css-var('message-h-padding');
     color: get-css-var('message-color');
     background-color: get-css-var('message-bg-color');
-    border: get-css-var('message-border');
+    border: get-css-var('border-shape') get-css-var('message-b-color');
     border-radius: get-css-var('message-radius');
     box-shadow: get-css-var('message-shadow');
 

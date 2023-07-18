@@ -425,8 +425,6 @@ export default defineComponent({
     )
     watch(currentVisible, value => {
       value && updatePopper()
-      emitEvent(props.onToggle, value)
-      emit('update:visible', value)
     })
     watch(
       () => props.value,
@@ -439,7 +437,7 @@ export default defineComponent({
       () => props.disabled,
       value => {
         if (value) {
-          currentVisible.value = false
+          setVisible(false)
         }
       }
     )
@@ -458,12 +456,21 @@ export default defineComponent({
       }
     }
 
+    function setVisible(visible: boolean) {
+      if (currentVisible.value === visible) return
+
+      currentVisible.value = visible
+
+      emit('update:visible', visible)
+      emitEvent(props.onToggle, visible)
+    }
+
     function handleClickOutside() {
       if (!editing.value) {
         emitEvent(props.onClickOutside)
 
         if (props.outsideClose && currentVisible.value) {
-          currentVisible.value = false
+          setVisible(false)
           emitEvent(props.onOutsideClose)
         }
       }
@@ -472,12 +479,14 @@ export default defineComponent({
     function toggleVisible() {
       if (props.disabled || (props.loading && props.loadingLock)) return
 
-      currentVisible.value = !currentVisible.value
+      setVisible(!currentVisible.value)
     }
 
     function handleClear() {
       if (props.clearable) {
-        currentVisible.value = false
+        setVisible(false)
+        emit('update:value', '')
+        emitEvent(props.onChange, '')
 
         nextTick(() => {
           parseValue(null)
@@ -490,11 +499,11 @@ export default defineComponent({
     function handleConfirm() {
       lastValue.value = { ...currentValue.value, a: currentAlpha.value, format: 'hsva' }
       isEmpty.value = false
-      currentVisible.value = false
+      setVisible(false)
       handleChange()
     }
 
-    function getForamttedColor() {
+    function getFormattedColor() {
       let color: Color
 
       if (props.format === 'hex') {
@@ -540,11 +549,11 @@ export default defineComponent({
     }
 
     function handleChange() {
-      const formattedColor = getForamttedColor()
+      const formattedColor = getFormattedColor()
 
+      emit('update:value', formattedColor)
       setFieldValue(formattedColor)
       emitEvent(props.onChange, formattedColor)
-      emit('update:value', formattedColor)
       validateField()
     }
 
@@ -574,7 +583,7 @@ export default defineComponent({
       currentValue.value = rgbToHsv(r, g, b)
       currentAlpha.value = a
 
-      emitEvent(props.onShortcut, getForamttedColor())
+      emitEvent(props.onShortcut, getFormattedColor())
     }
 
     function toggleEditing(able: boolean) {
@@ -657,7 +666,7 @@ export default defineComponent({
 
     function handleSpaceDown(event: KeyboardEvent) {
       if (props.disabled) {
-        currentVisible.value = false
+        setVisible(false)
       } else {
         event.preventDefault()
 
@@ -665,13 +674,13 @@ export default defineComponent({
           handleConfirm()
           reference.value?.focus()
         } else {
-          currentVisible.value = true
+          setVisible(true)
         }
       }
     }
 
     function handleEscDown() {
-      currentVisible.value = false
+      setVisible(false)
       reference.value?.focus()
     }
 

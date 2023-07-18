@@ -17,7 +17,7 @@
         v-show="transferTo"
         type="button"
         class="action"
-        style="margin-right: 0"
+        style="margin-inline-end: 0"
         @click="settingActive = true"
       >
         <Icon :scale="1.3">
@@ -47,7 +47,7 @@
             :title="locale.theme"
             @click="toggleDark"
           >
-            <Icon v-if="isDarkTheme" :scale="1.3">
+            <Icon v-if="dark" :scale="1.3">
               <Moon></Moon>
             </Icon>
             <Icon v-else :scale="1.3">
@@ -89,7 +89,7 @@
               type="button"
               class="action"
               :title="locale.cdn"
-              style="margin-right: 0"
+              style="margin-inline-end: 0"
             >
               <Icon :scale="1.3">
                 <Rocket></Rocket>
@@ -183,7 +183,10 @@ const props = defineProps({
   }
 })
 
-const isDarkTheme = ref(document.documentElement.classList.contains('dark'))
+const { dark } = props.store
+
+dark.value = document.documentElement.classList.contains('dark')
+
 const libVersion = `Repl@${__REPL_VERSION__}`
 
 const computedStyle = getComputedStyle(document.documentElement)
@@ -216,17 +219,26 @@ const repoMeta: Record<string, RepoMeta> = reactive({
     active: props.versions.vue || __VUE_VERSION__,
     loading: false,
     loaded: false
+  },
+  typescript: {
+    owner: 'microsoft',
+    repo: 'TypeScript',
+    name: 'TypeScript',
+    versions: [props.versions.typescript || __TS_VERSION__],
+    active: props.versions.typescript || __TS_VERSION__,
+    loading: false,
+    loaded: false
   }
 })
 
-const versions = computed(() => {
-  const versions: Record<string, string> = {}
+const versionsMap = computed(() => {
+  const map: Record<string, string> = {}
 
   for (const pkg of Object.keys(repoMeta)) {
-    versions[pkg] = repoMeta[pkg].active
+    map[pkg] = repoMeta[pkg].active
   }
 
-  return versions
+  return map
 })
 
 const cdnOptions = Object.keys(cdnTemplates)
@@ -280,15 +292,15 @@ function handleWindowBlur() {
 function toggleDark() {
   const cls = document.documentElement.classList
   cls.toggle('dark')
-  isDarkTheme.value = cls.contains('dark')
-  localStorage.setItem('vexip-sfc-playground-prefer-dark', String(isDarkTheme.value))
+  dark.value = cls.contains('dark')
+  localStorage.setItem('vexip-sfc-playground-prefer-dark', String(dark.value))
 }
 
 async function copyLink() {
   await navigator.clipboard.writeText(location.href)
   Message.success({
     content: 'Sharable URL has been copied to clipboard.',
-    background: !isDarkTheme.value
+    background: !dark.value
   })
 }
 
@@ -312,7 +324,7 @@ function reset() {
 function changeVersion(pkg: string, version: string) {
   repoMeta[pkg].active = version
 
-  props.store.setVersions(versions.value)
+  props.store.setVersions(versionsMap.value)
   history.replaceState({}, '', `${buildSearch()}${location.hash}`)
 }
 
@@ -322,8 +334,8 @@ function applyCdn() {
 }
 
 function buildSearch() {
-  if (Object.keys(versions.value).length) {
-    return `?${Object.entries(versions.value)
+  if (Object.keys(versionsMap.value).length) {
+    return `?${Object.entries(versionsMap.value)
       .map(([key, value]) => `${key}=${value}`)
       .join('&')}`
   }
@@ -383,7 +395,7 @@ async function formatCodes() {
 
     &__title {
       display: none;
-      margin-left: 12px;
+      margin-inline-start: 12px;
       color: var(--base);
       transition: var(--vxp-transition-background);
 
@@ -402,7 +414,7 @@ async function formatCodes() {
   }
 
   .ssr-switch {
-    margin-right: 20px;
+    margin-inline-end: 20px;
   }
 
   .action,
@@ -420,7 +432,7 @@ async function formatCodes() {
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     cursor: pointer;
     background-color: transparent;
     border: 0;
@@ -428,7 +440,7 @@ async function formatCodes() {
   }
 
   .repo-name {
-    margin-right: 6px;
+    margin-inline-end: 6px;
     color: var(--vxp-color-success-base);
     white-space: nowrap;
   }
@@ -461,7 +473,7 @@ async function formatCodes() {
   }
 
   .ssr-switch {
-    margin-right: 20px;
+    margin-inline-end: 20px;
   }
 
   .action,
@@ -479,19 +491,19 @@ async function formatCodes() {
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     cursor: pointer;
     background-color: transparent;
     border: 0;
     outline: 0;
 
     &:last-child {
-      margin-right: 0;
+      margin-inline-end: 0;
     }
   }
 
   .repo-name {
-    margin-right: 6px;
+    margin-inline-end: 6px;
     color: var(--vxp-color-success-base);
     white-space: nowrap;
   }

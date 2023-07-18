@@ -8,8 +8,7 @@ $notice: map.merge(
   (
     color: inherit,
     bg-color: get-css-var('bg-color-base'),
-    b-color: transparent,
-    border: get-css-var('border-shape') get-css-var('notice-b-color'),
+    b-color: get-css-var('border-color-light-2'),
     radius: get-css-var('radius-base'),
     s-color: get-css-var('shadow-color-base'),
     shadow: get-css-var('shadow-shape') get-css-var('notice-s-color'),
@@ -63,7 +62,7 @@ $notice: map.merge(
     display: flex;
     align-items: flex-start;
     padding-top: 4px;
-    margin-right: 10px;
+    margin-inline-end: 10px;
     color: get-css-var('notice-icon-color');
   }
 
@@ -72,7 +71,7 @@ $notice: map.merge(
     align-items: flex-start;
     align-self: flex-start;
     padding: 0 0 3px;
-    margin-left: 8px;
+    margin-inline-start: 8px;
     color: get-css-var('notice-close-color');
     cursor: pointer;
     background-color: transparent;
@@ -92,7 +91,7 @@ $notice: map.merge(
     padding: get-css-var('notice-v-padding') get-css-var('notice-h-padding');
     color: get-css-var('notice-color');
     background-color: get-css-var('notice-bg-color');
-    border: get-css-var('notice-border');
+    border: get-css-var('border-shape') get-css-var('notice-b-color');
     border-radius: get-css-var('notice-radius');
     box-shadow: get-css-var('notice-shadow');
 
@@ -107,7 +106,7 @@ $notice: map.merge(
       #{$icon} {
         align-items: center;
         padding-top: 0;
-        margin-right: 8px;
+        margin-inline-end: 8px;
       }
 
       #{$close} {

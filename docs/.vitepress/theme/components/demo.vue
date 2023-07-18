@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { markRaw, onMounted, ref, watch, watchEffect } from 'vue'
+import { computed, markRaw, onMounted, ref, watch, watchEffect } from 'vue'
+
+import { useI18n } from 'vue-i18n'
+
 import { Message } from 'vexip-ui'
 import { ChevronUp, Code, PaperPlaneR, PasteR, PenToSquareR } from '@vexip-ui/icons'
-import { useI18n } from 'vue-i18n'
+import { useBEM } from '@vexip-ui/bem-helper'
+import { useIntersection } from '@vexip-ui/hooks'
 import { highlight, languages } from 'prismjs'
 import { transformDemoCode } from '../common/demo-prefix'
 import { hashTarget } from '../common/hash-target'
 import { usePlayground } from '../common/playground'
 
 import type { RowExposed } from 'vexip-ui'
-
-const demos = import.meta.glob('@docs/demos/**/*.vue', { eager: true, import: 'default' })
-const codes = import.meta.glob('@docs/demos/**/*.vue', { eager: true, as: 'raw' })
 
 const extensionMap: Record<string, string> = {
   vue: 'markup',
@@ -31,13 +32,21 @@ const props = defineProps({
   src: {
     type: String,
     default: ''
+  },
+  demos: {
+    type: Object,
+    default: () => ({})
+  },
+  codes: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const { t, locale } = useI18n({ useScope: 'global' })
 
-const prefix = 'demo'
-const activeClass = `${prefix}--active`
+const nh = useBEM('demo')
+const activeClass = nh.bm('active')
 
 const demo = ref<Record<string, any>>()
 const code = ref('')
@@ -47,6 +56,17 @@ const codeLines = ref(0)
 
 const wrapper = ref<RowExposed>()
 const codeRef = ref<HTMLElement>()
+
+const wrapperEl = computed(() => wrapper.value?.$el as HTMLElement | undefined)
+const intersected = ref(false)
+
+useIntersection({
+  target: wrapperEl,
+  rootMargin: '200 0 200 0',
+  handler: entry => {
+    intersected.value = entry.isIntersecting
+  }
+})
 
 watchEffect(async () => {
   if (!codeRef.value) return
@@ -72,11 +92,11 @@ onMounted(() => {
 
 async function internalInit() {
   const basePath = `/demos/${props.src}/demo.${locale.value}.vue`
-  const path = Object.keys(demos).find(path => path.endsWith(basePath))
+  const path = Object.keys(props.demos).find(path => path.endsWith(basePath))
 
   if (path) {
-    demo.value = markRaw(demos[path] as any)
-    code.value = codes[path]
+    demo.value = markRaw(props.demos[path] as any)
+    code.value = props.codes[path]
   }
 }
 
@@ -146,9 +166,14 @@ function editOnPlayground() {
 </script>
 
 <template>
-  <Row ref="wrapper" tag="section" :class="[prefix]">
+  <Row
+    ref="wrapper"
+    tag="section"
+    :class="nh.b()"
+    :style="{ visibility: !intersected ? 'hidden' : undefined }"
+  >
     <Column>
-      <div :class="`${prefix}__example`">
+      <div :class="nh.be('example')">
         <NativeScroll
           mode="horizontal"
           width="100%"
@@ -158,18 +183,19 @@ function editOnPlayground() {
             padding: '20px 12px 8px'
           }"
         >
-          <!-- <slot></slot> -->
-          <component :is="demo" v-if="demo"></component>
+          <ClientOnly>
+            <component :is="demo" v-if="demo"></component>
+          </ClientOnly>
         </NativeScroll>
       </div>
-      <div :class="`${prefix}__description`">
+      <div :class="nh.be('description')">
         <slot></slot>
       </div>
     </Column>
-    <Column :class="`${prefix}__actions`">
+    <Column :class="nh.be('actions')">
       <Tooltip reverse transfer>
         <template #trigger>
-          <button type="button" :class="`${prefix}__action`">
+          <button type="button" :class="nh.be('action')">
             <Icon :scale="1.1" @click="copyCodes">
               <PasteR></PasteR>
             </Icon>
@@ -179,7 +205,7 @@ function editOnPlayground() {
       </Tooltip>
       <Tooltip reverse transfer>
         <template #trigger>
-          <button type="button" :class="`${prefix}__action`">
+          <button type="button" :class="nh.be('action')">
             <Icon :scale="1.1" :label="t('common.editOnGithub')" @click="editOnGithub">
               <PenToSquareR></PenToSquareR>
             </Icon>
@@ -189,7 +215,7 @@ function editOnPlayground() {
       </Tooltip>
       <Tooltip reverse transfer>
         <template #trigger>
-          <button type="button" :class="`${prefix}__action`">
+          <button type="button" :class="nh.be('action')">
             <Icon :scale="1.1" :label="t('common.editOnPlayground')" @click="editOnPlayground">
               <PaperPlaneR></PaperPlaneR>
             </Icon>
@@ -199,7 +225,7 @@ function editOnPlayground() {
       </Tooltip>
       <Tooltip reverse transfer>
         <template #trigger>
-          <button type="button" :class="`${prefix}__action`">
+          <button type="button" :class="nh.be('action')">
             <Icon
               :scale="1.1"
               :label="codeExpanded ? t('common.hideCode') : t('common.showCode')"
@@ -213,16 +239,16 @@ function editOnPlayground() {
       </Tooltip>
     </Column>
     <CollapseTransition>
-      <Column v-show="codeExpanded" :class="`${prefix}__code`">
+      <Column v-show="codeExpanded" :class="nh.be('code')">
         <div :class="`language-vue`">
           <pre :class="`language-vue`" :lang="'vue'"><code ref="codeRef"></code></pre>
           <span v-if="codeLines > 0" class="code-line-numbers">
             <span v-for="n in codeLines" :key="n"></span>
           </span>
         </div>
-        <button type="button" :class="`${prefix}__reduce`" @click="expandCodes">
+        <button type="button" :class="nh.be('reduce')" @click="expandCodes">
           <Icon><ChevronUp></ChevronUp></Icon>
-          <span :class="`${prefix}__tip`">
+          <span :class="nh.be('tip')">
             {{ t('common.hideCode') }}
           </span>
         </button>
@@ -287,12 +313,12 @@ function editOnPlayground() {
 
       &::before {
         width: 14px;
-        margin-right: 8px;
+        margin-inline-end: 8px;
       }
 
       &::after {
         width: calc(100% - 14px);
-        margin-left: 8px;
+        margin-inline-start: 8px;
       }
 
       &__link {
@@ -316,7 +342,7 @@ function editOnPlayground() {
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-left: 3px;
+    margin-inline-start: 3px;
     color: var(--vxp-content-color-placeholder);
     cursor: pointer;
     background-color: transparent;
@@ -330,7 +356,7 @@ function editOnPlayground() {
     }
 
     &:first-child {
-      margin-left: 0;
+      margin-inline-start: 0;
     }
 
     .vxp-tooltip__trigger {
@@ -390,8 +416,8 @@ function editOnPlayground() {
 
   &__reduce &__tip {
     width: 80px;
-    padding-left: 10px;
-    margin-right: -80px;
+    padding-inline-start: 10px;
+    margin-inline-end: -80px;
     white-space: nowrap;
     opacity: 0%;
     transition: margin var(--vxp-transition-base), var(--vxp-transition-color),
@@ -400,7 +426,7 @@ function editOnPlayground() {
 
   &__reduce:hover &__tip,
   &__reduce:focus &__tip {
-    margin-right: 0;
+    margin-inline-end: 0;
     opacity: 100%;
   }
 

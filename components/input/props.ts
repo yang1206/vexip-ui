@@ -36,11 +36,13 @@ export const inputProps = buildProps({
   readonly: booleanProp,
   disabled: booleanProp,
   inputClass: classProp,
+  controlClass: classProp,
   debounce: booleanProp,
+  delay: Number,
   maxLength: Number,
   before: String,
   after: String,
-  // 是否显示切换 passwrod 为明文的按钮
+  // 是否显示切换 password 为明文的按钮
   plainPassword: booleanProp,
   clearable: booleanProp,
   loading: booleanProp,

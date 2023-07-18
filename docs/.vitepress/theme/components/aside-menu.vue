@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useData, useRoute, useRouter } from 'vitepress'
+
 import { useI18n } from 'vue-i18n'
+
+import { useData, useRoute, useRouter } from 'vitepress'
 import { flatTree, toKebabCase } from '@vexip-ui/utils'
 import { ensureStartingSlash } from '../../shared'
 
@@ -128,16 +130,16 @@ function selectMenu(label: string, meta: AsideMenuItem) {
 
 <style lang="scss">
 .aside-menu {
-  padding-bottom: 16px;
+  padding-bottom: 126px;
 
   &__tag {
-    margin-left: 4px;
+    margin-inline-start: 4px;
     font-size: 10px;
     transform: scale(0.8);
   }
 
   &__sub-name {
-    margin-left: 8px;
+    margin-inline-start: 8px;
     color: var(--vxp-content-color-secondary);
     transition: var(--vxp-transition-color);
 

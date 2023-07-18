@@ -2,7 +2,7 @@
   <Table :columns="columns" :data="data">
     <TableColumn name="First Name" id-key="firstName" :order="0">
       <template #default="{ row }">
-        <Icon style="margin-right: 8px">
+        <Icon style="margin-inline-end: 8px">
           <User></User>
         </Icon>
         {{ row.firstName }}
@@ -27,6 +27,15 @@
 import { h, ref } from 'vue'
 
 import { User } from '@vexip-ui/icons'
+
+interface RowData {
+  id: string,
+  job: string,
+  email: string,
+  firstName: string,
+  lastName: string,
+  age: string
+}
 
 const columns = ref([
   {
@@ -78,7 +87,7 @@ const data = ref([
   }
 ])
 
-function jobAccessor(row: { job: string }) {
+function jobAccessor(row: RowData) {
   return row.job
 }
 
@@ -86,7 +95,7 @@ function handleAgeClick() {
   console.info('clicked')
 }
 
-function renderAge({ row }: { row: { age: string } }) {
+function renderAge({ row }: { row: RowData }) {
   return h(
     'span',
     {

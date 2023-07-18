@@ -35,10 +35,10 @@ describe('Timeline', () => {
     expect(wrapper.find('.vxp-timeline').classes()).toContain('vxp-timeline--pending')
   })
 
-  it('both sides', () => {
+  it('alternate', () => {
     const wrapper = mount(() => <Timeline both-sides></Timeline>)
 
-    expect(wrapper.find('.vxp-timeline').classes()).toContain('vxp-timeline--both-sides')
+    expect(wrapper.find('.vxp-timeline').classes()).toContain('vxp-timeline--alternate')
   })
 
   it('flip', () => {
@@ -111,10 +111,10 @@ describe('Timeline', () => {
     const items = wrapper.findAll('.vxp-timeline__item')
 
     expect(items[0].find('.vxp-timeline__line').attributes('style')).toContain(
-      'border-left-color: yellow;'
+      'border-inline-start-color: yellow;'
     )
     expect(items[1].find('.vxp-timeline__line').attributes('style')).toContain(
-      'border-left-color: red;'
+      'border-inline-start-color: red;'
     )
   })
 
@@ -129,11 +129,11 @@ describe('Timeline', () => {
     const items = wrapper.findAll('.vxp-timeline__item')
 
     expect(items[0].find('.vxp-timeline__line').attributes('style')).toContain(
-      'border-left-style: dashed;'
+      'border-inline-start-style: dashed;'
     )
     expect(items[1].find('.vxp-timeline__line').attributes('style')).toBeUndefined()
     expect(items[2].find('.vxp-timeline__line').attributes('style')).toContain(
-      'border-left-style: dashed;'
+      'border-inline-start-style: dashed;'
     )
   })
 

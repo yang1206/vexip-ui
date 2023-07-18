@@ -7,12 +7,16 @@
     :no-aside="!showAside"
   >
     <template #header-right>
-      <div style="margin-right: 24px">
+      <div style="margin-inline-end: 24px">
         <Switch v-model:value="showAside" open-text="Show aside" close-text="Hide aside"></Switch>
       </div>
     </template>
     <template #main>
-      <div style="width: 100%; height: 1200px"></div>
+      <div style="width: 100%; padding: 0 20px">
+        <p v-for="n in 40" :key="n">
+          {{ n }}
+        </p>
+      </div>
     </template>
   </Layout>
 </template>

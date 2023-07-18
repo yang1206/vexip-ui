@@ -358,8 +358,8 @@ describe('NumberInput', () => {
     expect(getValue(wrapper.find('input'))).toEqual(`${NUMBER}Y`)
   })
 
-  it('input class', () => {
-    const wrapper = mount(() => <NumberInput input-class={'test'}></NumberInput>)
+  it('control class', () => {
+    const wrapper = mount(() => <NumberInput control-class={'test'}></NumberInput>)
 
     expect(wrapper.find('input').classes()).toContain('test')
   })
@@ -448,5 +448,34 @@ describe('NumberInput', () => {
     vi.runAllTimers()
     await nextTick()
     expect(wrapper.find('.vxp-number-input').classes()).toContain('vxp-number-input--out-of-range')
+  })
+
+  // # 365
+  it('ensure value sync when two way binding', async () => {
+    const wrapper = mount(NumberInput, {
+      props: { precision: 2 }
+    })
+    const input = wrapper.find('input').element
+
+    emitChange(input, 1.11)
+    await nextTick()
+    expect(wrapper.emitted()).toHaveProperty('update:value')
+    expect(wrapper.emitted()['update:value'][0]).toEqual([1.11])
+
+    emitChange(input, 1.111)
+    await nextTick()
+    expect(wrapper.emitted()['update:value'][1]).toEqual([1.11])
+
+    emitChange(input, 1.116)
+    await nextTick()
+    expect(wrapper.emitted()['update:value'][2]).toEqual([1.12])
+  })
+
+  it('ignore invalid init value', () => {
+    const wrapper = mount(NumberInput, {
+      props: { value: 'invalid' }
+    })
+
+    expect(getValue(wrapper.find('input'))).toEqual('')
   })
 })

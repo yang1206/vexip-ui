@@ -7,10 +7,12 @@ $layout: () !default;
 $layout: map.merge(
   (
     view-height: 100vh,
+    aside-z-index: calc(#{get-css-var('z-index-popper')} + 100),
     aside-width: 240px,
     aside-bg-color: get-css-var('bg-color-base'),
     aside-b-color: get-css-var('border-color-light-2'),
     aside-border: get-css-var('border-shape') get-css-var('layout-aside-b-color'),
+    header-z-index: calc(#{get-css-var('z-index-popper')} + 100),
     header-height: 55px,
     header-bg-color: get-css-var('bg-color-base'),
     header-b-color: get-css-var('border-color-light-2'),
@@ -46,12 +48,12 @@ $layout: map.merge(
     flex-direction: column;
   }
 
-  &__sider {
+  &__sidebar {
     position: absolute;
     top: 0;
     bottom: 0;
-    left: 0;
-    z-index: calc(get-css-var('z-index-popper') + 100);
+    inset-inline-start: 0;
+    z-index: get-css-var('layout-aside-z-index');
     display: flex;
     pointer-events: none;
   }
@@ -63,14 +65,14 @@ $layout: map.merge(
     top: 0;
     bottom: 0;
     left: 0;
-    z-index: calc(get-css-var('z-index-popper') + 100);
     display: flex;
     flex-direction: column;
     width: get-css-var('layout-aside-width');
     max-height: get-css-var('layout-view-height');
     pointer-events: all;
     background-color: get-css-var('layout-aside-bg-color');
-    border-right: get-css-var('layout-aside-border');
+    border-inline-end: get-css-var('layout-aside-border');
+    will-change: width transform;
     transition: width get-css-var('transition-base'), get-css-var('transition-border'),
       get-css-var('transition-transform');
     transform: translateX(-100%);
@@ -86,6 +88,13 @@ $layout: map.merge(
 
     &--reduced {
       width: 64px;
+    }
+
+    &--no-sign#{&}--fixed {
+      top: get-css-var('layout-header-height');
+      max-height: calc(
+        #{get-css-var('layout-view-height')} - #{get-css-var('layout-header-height')}
+      );
     }
 
     &-top {
@@ -108,16 +117,7 @@ $layout: map.merge(
 
     .#{$namespace}-menu {
       margin-top: 10px;
-      border-right: 0;
-    }
-  }
-
-  &--header-main &__aside {
-    &--fixed {
-      top: get-css-var('layout-header-height');
-      max-height: calc(
-        #{get-css-var('layout-view-height')} - #{get-css-var('layout-header-height')}
-      );
+      border-inline-end: 0;
     }
   }
 
@@ -129,14 +129,14 @@ $layout: map.merge(
     position: relative;
     width: 100%;
     min-height: calc(#{get-css-var('layout-view-height')} - #{get-css-var('layout-header-height')});
-    transition: padding-left get-css-var('transition-base');
+    transition: padding-inline-start get-css-var('transition-base');
 
     &--away {
-      padding-left: get-css-var('layout-aside-width');
+      padding-inline-start: get-css-var('layout-aside-width');
     }
 
     &--away#{&}--reduced {
-      padding-left: 64px;
+      padding-inline-start: 64px;
     }
   }
 
@@ -145,7 +145,7 @@ $layout: map.merge(
   }
 
   &--no-aside &__section {
-    padding-left: 0;
+    padding-inline-start: 0;
   }
 
   &--locked &__section {
@@ -158,7 +158,7 @@ $layout: map.merge(
     position: sticky;
     top: 0;
     left: 0;
-    z-index: 1;
+    z-index: get-css-var('layout-header-z-index');
     display: flex;
     align-items: center;
     width: 100%;
@@ -215,7 +215,6 @@ $layout: map.merge(
 
   &__main {
     position: relative;
-    z-index: 0;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -223,6 +222,7 @@ $layout: map.merge(
 
     &--fixed {
       height: calc(100% - var(--vxp-layout-header-height));
+      overflow: hidden;
     }
   }
 
@@ -256,11 +256,11 @@ $layout: map.merge(
   }
 
   &__header &__sign {
-    padding-right: 16px;
-    margin-left: -16px;
+    padding-inline-end: 16px;
+    margin-inline-start: -16px;
 
     &--logo-only {
-      padding-right: 0;
+      padding-inline-end: 0;
     }
   }
 
@@ -310,7 +310,7 @@ $layout: map.merge(
     color: get-css-var('content-color-third');
     cursor: pointer;
     border: get-css-var('layout-aside-border');
-    border-left-color: transparent;
+    border-inline-start-color: transparent;
     border-radius: 0 get-css-var('radius-base') get-css-var('radius-base') 0;
   }
 
@@ -326,8 +326,8 @@ $layout: map.merge(
 
   &__user {
     .#{$namespace}-dropdown__trigger {
-      padding-right: 4px;
-      margin-right: -4px;
+      padding-inline-end: 4px;
+      margin-inline-end: -4px;
       cursor: pointer;
     }
 
@@ -408,7 +408,7 @@ $layout: map.merge(
     position: relative;
     width: 44px;
     height: 32px;
-    margin-right: 16px;
+    margin-inline-end: 16px;
     overflow: hidden;
     cursor: pointer;
     background-color: get-css-var('fill-color-humble');
@@ -416,14 +416,14 @@ $layout: map.merge(
     box-shadow: get-css-var('shadow-base');
 
     &:last-child {
-      margin-right: 0;
+      margin-inline-end: 0;
     }
 
     &::before {
       position: absolute;
       top: 0;
       bottom: 0;
-      left: 0;
+      inset-block-start: 0;
       width: 30%;
       content: '';
       background-color: get-css-var('content-color-reverse');
@@ -431,9 +431,8 @@ $layout: map.merge(
 
     &::after {
       position: absolute;
+      inset-inline: 0;
       top: 0;
-      right: 0;
-      left: 0;
       height: 25%;
       content: '';
       background-color: get-css-var('content-color-base');
@@ -452,7 +451,7 @@ $layout: map.merge(
 
     .#{$namespace}-icon {
       position: absolute;
-      right: 3px;
+      inset-inline-end: 3px;
       bottom: 3px;
       color: get-css-var('color-primary-base');
     }
@@ -479,20 +478,20 @@ $layout: map.merge(
     justify-content: center;
     width: 30px;
     height: 20px;
-    margin-right: 8px;
+    margin-inline-end: 8px;
     margin-bottom: 6px;
     color: get-css-var('color-white');
     cursor: pointer;
     border-radius: get-css-var('radius-small');
 
     &:last-child {
-      margin-right: 0;
+      margin-inline-end: 0;
     }
   }
 
   &__copyright {
     width: 100%;
-    padding: 16px;
+    padding: 16px 0 22px;
     color: get-css-var('content-color-secondary');
     text-align: center;
   }
@@ -530,12 +529,12 @@ $layout: map.merge(
       display: inline-flex;
       flex: 1 0 0;
       flex-direction: column;
-      padding-right: 24px;
+      padding-inline-end: 24px;
       padding-bottom: 32px;
 
       &--vertical {
         align-items: center;
-        padding-right: 0;
+        padding-inline-end: 0;
       }
     }
 
@@ -547,7 +546,7 @@ $layout: map.merge(
     }
 
     &-subname {
-      margin-left: 6px;
+      margin-inline-start: 6px;
       color: get-css-var('content-color-disabled');
     }
   }

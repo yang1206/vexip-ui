@@ -106,12 +106,12 @@ $tab-nav: map.merge(
 
   &--top &__prefix,
   &--bottom &__prefix {
-    padding-left: 3px;
+    padding-inline-start: 3px;
   }
 
   &--top &__suffix,
   &--bottom &__suffix {
-    padding-right: 3px;
+    padding-inline-end: 3px;
   }
 
   &__item {
@@ -244,7 +244,7 @@ $tab-nav: map.merge(
     height: get-css-var('tab-nav-item-pad-size');
   }
 
-  &__item:nth-child(2) &__pad {
+  &__item:nth-child(1) &__pad {
     display: none;
   }
 
@@ -270,20 +270,20 @@ $tab-nav: map.merge(
       border-bottom-width: 1px;
     }
 
-    #{$content} {
-      &--active {
-        &,
-        &:hover,
-        &:focus {
-          border-bottom-color: transparent;
+    &#{$card} {
+      #{$content} {
+        &--active {
+          &,
+          &:hover,
+          &:focus {
+            border-bottom-color: transparent;
+          }
         }
       }
-    }
 
-    &#{$card} {
       #{$content},
       #{$add} {
-        border-radius: $content-radius $content-radius 0 0;
+        @include logical-radius($content-radius $content-radius 0 0);
       }
     }
 
@@ -298,23 +298,23 @@ $tab-nav: map.merge(
     #{$content},
     #{$add},
     #{$pad} {
-      border-left-width: 1px;
-    }
-
-    #{$content} {
-      &--active {
-        &,
-        &:hover,
-        &:focus {
-          border-left-color: transparent;
-        }
-      }
+      border-inline-start-width: 1px;
     }
 
     &#{$card} {
+      #{$content} {
+        &--active {
+          &,
+          &:hover,
+          &:focus {
+            border-inline-start-color: transparent;
+          }
+        }
+      }
+
       #{$content},
       #{$add} {
-        border-radius: 0 $content-radius $content-radius 0;
+        @include logical-radius(0 $content-radius $content-radius 0);
       }
     }
 
@@ -332,20 +332,20 @@ $tab-nav: map.merge(
       border-top-width: 1px;
     }
 
-    #{$content} {
-      &--active {
-        &,
-        &:hover,
-        &:focus {
-          border-top-color: transparent;
+    &#{$card} {
+      #{$content} {
+        &--active {
+          &,
+          &:hover,
+          &:focus {
+            border-top-color: transparent;
+          }
         }
       }
-    }
 
-    &#{$card} {
       #{$content},
       #{$add} {
-        border-radius: 0 0 $content-radius $content-radius;
+        @include logical-radius(0 0 $content-radius $content-radius);
       }
     }
 
@@ -360,23 +360,23 @@ $tab-nav: map.merge(
     #{$content},
     #{$add},
     #{$pad} {
-      border-right-width: 1px;
-    }
-
-    #{$content} {
-      &--active {
-        &,
-        &:hover,
-        &:focus {
-          border-right-color: transparent;
-        }
-      }
+      border-inline-end-width: 1px;
     }
 
     &#{$card} {
+      #{$content} {
+        &--active {
+          &,
+          &:hover,
+          &:focus {
+            border-inline-end-color: transparent;
+          }
+        }
+      }
+
       #{$content},
       #{$add} {
-        border-radius: $content-radius 0 0 $content-radius;
+        @include logical-radius($content-radius 0 0 $content-radius);
       }
     }
 
@@ -399,19 +399,19 @@ $tab-nav: map.merge(
   }
 
   &__icon {
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 
   &__close {
     position: relative;
-    left: 8px;
+    inset-inline-start: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 18px;
     height: 18px;
     padding: 0;
-    margin-left: -2px;
+    margin-inline-start: -2px;
     color: inherit;
     cursor: pointer;
     background-color: transparent;

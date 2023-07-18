@@ -19,8 +19,10 @@ import {
   createEventEmitter,
   flatVNodes,
   isClient,
+  isDefined,
   isElement,
-  isTrue
+  isTrue,
+  warnOnce
 } from '@vexip-ui/utils'
 import { nativeScrollProps } from './props'
 import { useScrollWrapper } from './hooks'
@@ -35,13 +37,10 @@ const UP_EVENT = 'mouseup'
 
 export default defineComponent({
   name: 'NativeScroll',
-  components: {
-    Scrollbar,
-    ResizeObserver
-  },
+  inheritAttrs: false,
   props: nativeScrollProps,
   emits: [],
-  setup(_props, { slots, expose }) {
+  setup(_props, { attrs, slots, expose }) {
     const props = useProps('nativeScroll', _props, {
       scrollClass: null,
       scrollStyle: null,
@@ -75,8 +74,17 @@ export default defineComponent({
       appear: false,
       barDuration: null,
       useBarTrack: false,
-      scrollTag: 'div'
+      scrollTag: 'div',
+      observeDeep: false,
+      scrollOnly: false
     })
+
+    if (isDefined(props.onBeforeScroll)) {
+      warnOnce(
+        "[vexip-ui:Table] 'on-before-scroll' prop has been deprecated, please " +
+          'do not use it anymore'
+      )
+    }
 
     const emitter = createEventEmitter()
 
@@ -92,7 +100,6 @@ export default defineComponent({
       contentElement,
 
       content,
-      // currentScroll,
       x,
       y,
       percentX,
@@ -117,8 +124,8 @@ export default defineComponent({
       mode: toRef(props, 'mode'),
       disabled: toRef(props, 'disabled'),
       appear: toRef(props, 'appear'),
-      width: toRef(props, 'width'),
-      height: toRef(props, 'height'),
+      // width: toRef(props, 'width'),
+      // height: toRef(props, 'height'),
       scrollX: toRef(props, 'scrollX'),
       scrollY: toRef(props, 'scrollY'),
       onResize: entry => {
@@ -389,13 +396,6 @@ export default defineComponent({
       event.stopPropagation()
       event.preventDefault()
 
-      const signX = event.clientX - cursorXPosition > 0 ? 1 : -1
-      const signY = event.clientY - cursorYPosition > 0 ? 1 : -1
-
-      if (props.onBeforeScroll?.({ signX, signY }) === false) {
-        return false
-      }
-
       scrolling.value = true
 
       if (enableXScroll.value) {
@@ -433,10 +433,7 @@ export default defineComponent({
 
       emitEvent(props.onWheel, event, type)
 
-      if (
-        (isVerticalScroll || isHorizontalScroll) &&
-        props.onBeforeScroll?.({ signX: sign, signY: sign }) !== false
-      ) {
+      if (isVerticalScroll || isHorizontalScroll) {
         const maxLimit = isVerticalScroll ? yScrollLimit.value : xScrollLimit.value
         const scroll = isVerticalScroll ? y.value : x.value
 
@@ -452,19 +449,8 @@ export default defineComponent({
       if (!contentElement.value) return
 
       event.stopPropagation()
-      event.preventDefault()
 
       const type = contentElement.value?.scrollLeft !== x.value ? 'horizontal' : 'vertical'
-
-      const signX = contentElement.value.scrollLeft - x.value > 0 ? 1 : -1
-      const signY = contentElement.value.scrollTop - y.value > 0 ? 1 : -1
-
-      if (props.onBeforeScroll?.({ signX, signY }) === false) {
-        contentElement.value.scrollTop = y.value
-        contentElement.value.scrollLeft = x.value
-
-        return
-      }
 
       y.value = contentElement.value.scrollTop
       x.value = contentElement.value.scrollLeft
@@ -610,15 +596,20 @@ export default defineComponent({
     }
 
     function renderContent() {
-      const Content = (props.scrollTag || 'div') as 'div'
-      const children = slots.default && renderSlot(slots, 'default', slotParams).children
+      const Content = (props.scrollTag || 'div') as any
+      const children =
+        props.observeDeep && slots.default ? renderSlot(slots, 'default', slotParams).children : []
 
       return (
         <Content
           ref={contentElement}
           {...props.scrollAttrs}
+          {...(props.scrollOnly ? attrs : {})}
           class={wrapperClass.value}
-          style={[props.scrollAttrs?.style, props.scrollStyle]}
+          style={[props.scrollAttrs?.style, props.scrollStyle, props.scrollOnly && style.value]}
+          onMousedown={handleMouseDown}
+          onWheelPassive={(event: WheelEvent) =>
+            handleWheel(event, event.shiftKey ? 'horizontal' : 'vertical')}
           onScroll={handleScroll}
         >
           {slots.extra && (
@@ -641,21 +632,30 @@ export default defineComponent({
             </div>
           )}
           {slots.default &&
-            flatVNodes(children!).map(vnode => {
-              return <ResizeObserver on-resize={handleResize}>{() => vnode}</ResizeObserver>
-            })}
+            (props.observeDeep
+              ? flatVNodes(children).map((vnode, index) => {
+                return (
+                  <ResizeObserver key={vnode.key ?? index} on-resize={handleResize}>
+                    {() => vnode}
+                  </ResizeObserver>
+                )
+              })
+              : renderSlot(slots, 'default', slotParams))}
         </Content>
       )
     }
 
     return () => {
+      if (props.scrollOnly) {
+        return <ResizeObserver on-resize={handleResize}>{renderContent()}</ResizeObserver>
+      }
+
       return (
         <div
           ref={wrapper}
-          class={className.value}
-          style={style.value}
-          onMousedown={handleMouseDown}
-          onWheel={event => handleWheel(event, event.shiftKey ? 'horizontal' : 'vertical')}
+          {...attrs}
+          class={[className.value, attrs.class]}
+          style={[style.value, attrs.style as any]}
         >
           <ResizeObserver on-resize={handleResize}>{renderContent()}</ResizeObserver>
           {props.useXBar && (
